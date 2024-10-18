@@ -1,0 +1,270 @@
+# Override the name of the chart
+nameOverride: ""
+# Override app name
+# Please reade the helper for more detail
+fullnameOverride: ""
+
+workload: {}
+  # department: "engineering"
+  # team: ""
+  # subteam: ""
+  # system: ""
+  # description: ""
+  # owners: []
+
+## Server
+server:
+  name: server
+  kind: Deployment
+  strategy: {}
+  replicas: 1
+  revisionHistoryLimit: 1
+
+  image:
+    repository: nginx
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  imagePullSecrets: []
+    # - name: regcred
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podLabels: []
+
+  ## serviceName this field should be specified when .Values.server.kind is "StatefulSet"
+  serviceName: ""
+
+  overrideCommand: []
+
+  args: []
+
+  nodeSelector: {}
+
+  affinity: {}
+
+  tolerations: []
+
+  resources: {}
+
+  jobs: []
+  # - name: <job-name>
+  #   annotations: {}
+  #   image:
+  #     repository: curlimages/curl
+  #     tag: latest
+  #   commands:
+  #     - "curl"
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: #80
+    targetMemoryUtilizationPercentage: #75
+    ## https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#scaling-policies
+    behavior: {}
+    ## https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis
+    externalMetrics: []
+    # - external:
+    #     metric:
+    #       name: trace.http.request.hits
+    #       selector:
+    #         matchLabels:
+    #           cluster_name: develop
+    #     target:
+    #       averageValue: 15
+    #       type: AverageValue
+    #   type: External
+
+  service:
+    type: ClusterIP
+    headless: false
+    annotations: {}
+    labels: {}
+
+  exposes: []
+    # - name: http
+    #   port: 80
+    #   protocol: TCP
+
+  datadog:
+    enabled: false
+    env: develop
+    version:
+    service:
+
+  otel:
+    enabled: false
+    env: develop
+    version:
+    service:
+
+  ## Environment variables pass to the server
+  ##
+  env: []
+    # - name: "PORT"
+    #   value: "8080"
+    # - name: "MODE"
+    #   value: production
+
+  ## envFrom to pass to the server
+  envFrom:
+    []
+    # - configMapRef:
+    #     name: configmap-name
+    # - secretRef:
+    #     name: secret-name
+
+  ## Additional volumeMounts to the server main container
+  volumeMounts: []
+
+  ## Additional volumes to the server pod
+  volumes: []
+
+  ## Volume Claim Templates this only work with .Values.server.kind is StatefulSet
+  volumeClaimTemplates: []
+  # - metadata:
+  #     name: config
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     storageClassName: standard
+  #     resources:
+  #       requests:
+  #         storage: 10Gi
+
+  securityContext: {}
+
+  ingress:
+    enabled: false
+    annotations: {}
+
+    ## Ingress.
+    ## Hostnames must be provided if Ingress is enabled.
+    ## Secrets must be manually created in the namespace
+    ##
+    hosts:
+      []
+      # - host: example.local
+      #   paths:
+      #     - path: /
+      #       pathType: Prefix
+      #       port: 80
+    tls:
+      []
+      # - secretName: example-tls
+      #   hosts:
+      #     - example.local
+
+  # -- Create a kubernetes secret resource  from GSM
+  secrets:
+    create: false
+    path: ""
+    target: {}
+      # name:
+      # type: Opaque
+      # deletionPolicy: Retain
+
+  configMaps:
+    create: false
+    data: []
+    # create: true
+    # data:
+    #   - name: exampleCMName0
+    #     value: example Value 0
+    #   - name: exampleCMName1
+    #     value: example Value 2
+
+  readinessProbe: {}
+    # httpGet:
+    #   path: /
+    #   port: 80
+    # timeoutSeconds: 5
+
+  livenessProbe: {}
+    # httpGet:
+    #   path: /
+    #   port: 80
+    # timeoutSeconds: 5
+
+## Redis
+redis:
+  enabled: false
+  name: redis
+
+  image:
+    repository: redis
+    tag: 6.2.4-alpine
+    pullPolicy: IfNotPresent
+
+  extraArgs: []
+  # - --bind
+  # - "0.0.0.0"
+
+  containerPort: 6379
+  servicePort: 6379
+
+  ## Environment variables to pass to the Redis server
+  ##
+  env: []
+
+  ## envFrom to pass to the Redis server
+  ##
+  envFrom: []
+  # - configMapRef:
+  #     name: config-map-name
+  # - secretRef:
+  #     name: secret-name
+
+  ## Annotations to be added to the Redis server pods
+  ##
+  podAnnotations: {}
+
+  ## Labels to be added to the Redis server pods
+  ##
+  podLabels: {}
+
+  ## Labels to set container specific security contexts
+  containerSecurityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #     - all
+    # readOnlyRootFilesystem: true
+
+  ## Redis Pod specific security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+
+  serviceAccount:
+    create: false
+    name: ""
+    ## Annotations applied to created service account
+    annotations: {}
+    ## Automount API credentials for the Service Account
+    automountServiceAccountToken: false
+
+  resources: {}
+  #  limits:
+  #    cpu: 200m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 64Mi
+
+  volumeMounts: []
+  volumes: []
+
+  service:
+    annotations: {}
+    labels: {}

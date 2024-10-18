@@ -1,0 +1,33 @@
+{{- if $.Values.server.jobs }}
+{{- range $job := $.Values.server.jobs -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-%s" $job.name (randAlphaNum 5 | nospace | lower ) }}
+  labels:
+    {{- include "base-service.labels" (dict "context" $ "component" $.Values.server.name "name" $.Values.server.name) | nindent 4 }}
+  annotations:
+    {{- with $job.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ $job.backoffLimit | default 1 }}
+  parallelism: {{ $job.parallelism | default 1 }}
+  template:
+    spec:
+      restartPolicy: {{ $job.restartPolicy | default "Never" }}
+      containers:
+        - name: {{ $job.name }}
+          image: {{ include "merged.image" (merge ($job.image|default dict) $.Values.server.image) }}
+          imagePullPolicy: {{ $.Values.server.image.pullPolicy }}
+          command:
+            {{- range $job.commands }}
+            - {{ . }}
+            {{- end }}
+          {{ if $job.env }}
+          env:
+            {{- include "merged.env" (concat $.Values.server.env ($job.env | default list)) | nindent 10 }}
+          {{- end }}
+{{ end }}
+{{ end }}

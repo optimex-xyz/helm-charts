@@ -1,0 +1,33 @@
+{{- if .Values.server.exposes }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "base-service.fullname" . }}
+  {{- with .Values.server.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "base-service.labels" (dict "context" . "component" .Values.server.name "name" .Values.server.name) | nindent 4 }}
+    {{- with .Values.server.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.server.service.headless }}
+  type: ClusterIP
+  clusterIP: None
+  {{- else }}
+  type: {{ .Values.server.service.type | default "ClusterIP" }}
+  {{- end }}
+  ports:
+  {{- range .Values.server.exposes }}
+    - port: {{ int .port }}
+      targetPort: {{ int .port }}
+      protocol: {{ .protocol | default "TCP" }}
+      {{- if .name }}
+      name: {{ .name }}
+      {{- end }}
+  {{- end }}
+  selector:
+    {{- include "base-service.selectorLabels" (dict "context" . "name" .Values.server.name) | nindent 4 }}
+{{- end }}

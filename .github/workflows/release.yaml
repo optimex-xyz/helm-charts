@@ -1,0 +1,58 @@
+name: Release Charts
+
+permissions: write-all
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Setup Environments
+        run: cp ./scripts/edit_index.py /usr/local/bin/edit_index
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.1
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Add Release
+        run: |
+          [[ -d .cr-release-packages ]] || exit 0
+
+          git checkout gh-pages
+          git pull
+
+          mkdir -p packages
+
+          mv .cr-release-packages/*.tgz packages
+          edit_index --path=index.yaml --new_url=packages
+
+          git add *.tgz
+          git add index.yaml
+
+          git commit -m "Publish Charts"
+          git push origin gh-pages
