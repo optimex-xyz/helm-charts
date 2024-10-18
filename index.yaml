@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  base-service:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-10-18T08:34:33.540841762Z"
+    description: A Helm chart for Kubernetes
+    digest: b0af70174fbb25feb5cccef6c257bc62ba76749476dfa4893b931f6ac5355d55
+    name: base-service
+    type: application
+    urls:
+    - https://github.com/bitfixyz/helm-charts/releases/download/base-service-0.1.8/base-service-0.1.8.tgz
+    version: 0.1.8
+generated: "2024-10-18T08:34:33.540848104Z"
