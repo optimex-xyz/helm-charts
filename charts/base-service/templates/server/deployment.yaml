@@ -4,7 +4,6 @@ kind: {{ .Values.server.kind | default "Deployment" }}
 metadata:
   name: {{ include "base-service.fullname" . }}
   annotations:
-    {{- include "base-service.workload" . | nindent 4 }}
   labels:
     {{- include "base-service.labels" (dict "context" . "component" .Values.server.name "name" .Values.server.name) | nindent 4 }}
     {{- with .Values.server.podLabels }}
