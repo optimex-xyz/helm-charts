@@ -1,4 +1,4 @@
-# bitfi Helm Charts
+# Helm Charts
 
 ## Usage
 
